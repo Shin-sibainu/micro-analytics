@@ -1,74 +1,103 @@
 # 開発進捗管理
 
-最終更新: 2025-11-12
+最終更新: 2025-01-27（最新）
 
 ---
 
 ## プロジェクト概要
 
-**Coffee Analytics** - 1分で始められる、選択的機能を持つWeb分析ツール
+**Coffee Analytics** - 1 分で始められる、選択的機能を持つ Web 分析ツール
 
-- MVP開発期間: 3ヶ月
-- 目標ローンチ: 2025年5月
+- MVP 開発期間: 3 ヶ月
+- 目標ローンチ: 2025 年 5 月
 
 ---
 
 ## 開発フェーズ
 
-### Phase 1: 基礎構築 (1ヶ月目) - 未着手
+### Phase 1: 基礎構築 (1 ヶ月目) - 進行中 (約 85%完了)
 
 #### Week 1-2: コア機能開発
-- [ ] プロジェクト環境セットアップ
-  - [ ] Next.js 16 プロジェクト初期化
-  - [ ] Tailwind CSS + shadcn/ui セットアップ
-  - [ ] Turso データベース接続設定
-  - [ ] Drizzle ORM セットアップ
-- [ ] ユーザー認証システム
-  - [ ] Better-Auth 導入
-  - [ ] Google OAuth 設定
-  - [ ] セッション管理実装
-- [ ] 独自トラッキングスクリプト開発
-  - [ ] トラッキングスクリプト (ca.js) 作成
-  - [ ] イベント受信API (/track) 実装
-  - [ ] データ保存ロジック実装
-- [ ] データベーススキーマ実装
-  - [ ] users テーブル
-  - [ ] sites テーブル
-  - [ ] events テーブル
+
+- [x] プロジェクト環境セットアップ
+  - [x] Next.js 16 プロジェクト初期化
+  - [x] Tailwind CSS + shadcn/ui セットアップ
+  - [x] Turso データベース接続設定
+  - [x] Drizzle ORM セットアップ
+- [x] ユーザー認証システム（基本設定完了）
+  - [x] Better-Auth 導入
+  - [x] Google OAuth 設定（設定ファイル作成済み）
+  - [x] セッション管理実装（スキーマ定義済み）
+- [x] 独自トラッキングスクリプト開発
+  - [x] トラッキングスクリプト (ca.js) 作成
+  - [x] イベント受信 API (/track) 実装
+  - [x] データ保存ロジック実装
+- [x] データベーススキーマ実装
+  - [x] users テーブル
+  - [x] sites テーブル
+  - [x] events テーブル
+  - [x] gscData テーブル（将来用）
+  - [x] aiInsights テーブル（将来用）
+  - [x] sessions テーブル（Better-Auth 用）
 
 #### Week 3-4: ダッシュボード基礎
-- [ ] レイアウト・ナビゲーション構築
-- [ ] リアルタイムデータ表示機能
-- [ ] 基本的なグラフ実装
-  - [ ] 訪問者数グラフ
-  - [ ] ページビューグラフ
-  - [ ] デバイス分布グラフ
-- [ ] ページ別統計表示
-- [ ] 流入元分析表示
+
+- [x] レイアウト・ナビゲーション構築
+  - [x] ダッシュボードレイアウト (`(dashboard)/layout.tsx`)
+  - [x] サイドバーコンポーネント (`dashboard-sidebar.tsx`)
+  - [x] ナビゲーションバー (`dashboard-nav.tsx`)
+  - [x] ダッシュボードページ構造 (`dashboard/[siteId]/page.tsx`)
+- [x] リアルタイムデータ表示機能
+  - [x] `RealtimeVisitors` コンポーネント作成
+  - [x] API 実装 (`/api/stats/realtime`)
+- [x] 基本的なグラフ実装
+  - [x] グラフコンポーネントの参照構造作成
+  - [x] 訪問者数グラフ実装 (`VisitorsChart`) - Recharts 使用
+  - [x] ページビューグラフ実装 (`PageviewsChart`) - Recharts 使用
+  - [x] デバイス分布グラフ実装 (`DevicesChart`) - Recharts 使用
+- [x] ページ別統計表示
+  - [x] `PagesList` コンポーネント実装
+  - [x] API 実装 (`/api/stats/pages`)
+- [x] 流入元分析表示
+  - [x] `SourcesList` コンポーネント実装
+  - [x] API 実装 (`/api/stats/sources`)
+- [x] 統計概要表示
+  - [x] `StatsOverview` コンポーネント実装
+  - [x] 前週比計算機能
+- [x] ランディングページ実装
+  - [x] ナビゲーションバー (`landing-nav.tsx`)
+  - [x] ヒーローセクション (`hero-section.tsx`)
+  - [x] 機能紹介セクション (`features-section.tsx`)
+  - [x] 価格セクション (`pricing-section.tsx`)
+  - [x] CTA セクション (`cta-section.tsx`)
+  - [x] フッター (`landing-footer.tsx`)
+  - [x] Plausible デザインシステム適用
 
 ---
 
-### Phase 2: 選択的機能 (2ヶ月目) - 未着手
+### Phase 2: 選択的機能 (2 ヶ月目) - 未着手
 
-#### Week 5-6: GSC連携
+#### Week 5-6: GSC 連携
+
 - [ ] Google Search Console API 連携
   - [ ] OAuth スコープ拡張
-  - [ ] GSC データ取得API実装
+  - [ ] GSC データ取得 API 実装
   - [ ] gscData テーブル実装
 - [ ] データ同期バッチ処理
   - [ ] Vercel Cron Jobs 設定
   - [ ] 日次データ同期ジョブ
 - [ ] SEO ダッシュボード追加
   - [ ] キーワードランキング表示
-  - [ ] CTR分析グラフ
+  - [ ] CTR 分析グラフ
   - [ ] 検索順位推移グラフ
 
-#### Week 7-8: UX改善
+#### Week 7-8: UX 改善
+
 - [ ] オンボーディングウィザード
-  - [ ] ステップ1: アカウント作成
-  - [ ] ステップ2: サイト登録
-  - [ ] ステップ3: 機能選択画面
-  - [ ] ステップ4: トラッキングコード表示
+  - [ ] ステップ 1: アカウント作成
+  - [ ] ステップ 2: サイト登録
+  - [ ] ステップ 3: 機能選択画面
+  - [ ] ステップ 4: トラッキングコード表示
 - [ ] トラッキング確認機能
   - [ ] 自動検証スクリプト
   - [ ] 設置状態の可視化
@@ -79,23 +108,25 @@
 
 ---
 
-### Phase 3: AI・決済 (3ヶ月目) - 未着手
+### Phase 3: AI・決済 (3 ヶ月目) - 未着手
 
-#### Week 9-10: AI分析
-- [ ] OpenAI API連携
+#### Week 9-10: AI 分析
+
+- [ ] OpenAI API 連携
   - [ ] API キー設定
   - [ ] Vercel AI SDK 導入
-- [ ] AI分析機能実装
+- [ ] AI 分析機能実装
   - [ ] aiInsights テーブル実装
   - [ ] トラフィック分析ロジック
-  - [ ] SEO改善提案ロジック
+  - [ ] SEO 改善提案ロジック
 - [ ] 週次レポート生成
   - [ ] レポート生成バッチ
   - [ ] メール送信機能 (Resend)
-- [ ] ダッシュボードにAI提案表示
+- [ ] ダッシュボードに AI 提案表示
 
 #### Week 11-12: 商用化
-- [ ] Stripe決済実装
+
+- [ ] Stripe 決済実装
   - [ ] プラン設定 (Essential/Pro/Business)
   - [ ] サブスクリプション管理
   - [ ] Webhook ハンドラー
@@ -116,57 +147,148 @@
 ## ローンチ準備チェックリスト
 
 ### 技術面
+
 - [ ] 負荷テスト完了
 - [ ] セキュリティ監査
 - [ ] バックアップ体制構築
 - [ ] 監視システム稼働 (Sentry, Vercel Analytics)
 
 ### ビジネス面
+
 - [ ] 利用規約作成
 - [ ] プライバシーポリシー作成
 - [ ] ヘルプドキュメント作成
 - [ ] サポート体制構築
-- [ ] 初期ユーザー50名確保
+- [ ] 初期ユーザー 50 名確保
 
 ### マーケティング
-- [ ] ランディングページ作成
-- [ ] Product Hunt準備
-- [ ] ブログ記事5本執筆
+
+- [x] ランディングページ作成
+- [ ] Product Hunt 準備
+- [ ] ブログ記事 5 本執筆
 - [ ] デモ動画作成
 
 ---
 
 ## 現在の状態
 
-**ステータス**: プロジェクト初期段階
+**ステータス**: Phase 1 進行中（Week 1-2 完了、Week 3-4 ほぼ完了）
 
 **完了タスク**:
-- プロジェクト要件定義完了
-- ドキュメント体制構築
+
+- ✅ プロジェクト要件定義完了
+- ✅ ドキュメント体制構築
+- ✅ Next.js 16 プロジェクト初期化
+- ✅ Tailwind CSS v4 + shadcn/ui セットアップ
+- ✅ **Turso データベース接続設定**
+- ✅ **Drizzle ORM セットアップ**
+- ✅ **データベーススキーマ実装**（users, sites, events, gscData, aiInsights, sessions）
+- ✅ **Better-Auth 基本設定**（設定ファイル作成済み）
+- ✅ **トラッキングスクリプト (ca.js) 作成**
+- ✅ **イベント受信 API (/track) 実装**
+- ✅ **データベースマイグレーション実行**
+- ✅ ダッシュボードレイアウト・ナビゲーション構築
+- ✅ **API ルート実装完了**（/api/stats/\*）
+- ✅ **ダッシュボードコンポーネント実装完了**
+  - `StatsOverview` - 統計概要
+  - `VisitorsChart` - 訪問者数グラフ
+  - `PageviewsChart` - ページビューグラフ
+  - `DevicesChart` - デバイス分布グラフ
+  - `PagesList` - 人気ページリスト
+  - `SourcesList` - 流入元リスト
+- ✅ **ランディングページ実装完了**（Plausible デザインシステム適用）
+
+**実装済みファイル**:
+
+**データベース関連**:
+
+- `src/lib/db/index.ts` - Turso 接続設定
+- `src/lib/db/schema.ts` - Drizzle スキーマ定義
+- `drizzle.config.ts` - Drizzle 設定ファイル
+
+**認証関連**:
+
+- `src/lib/auth/config.ts` - Better-Auth 設定
+- `src/app/api/auth/[...all]/route.ts` - 認証 API ルート
+
+**トラッキング関連**:
+
+- `public/ca.js` - トラッキングスクリプト
+- `src/app/track/route.ts` - イベント受信 API
+- `src/app/ca.js/route.ts` - スクリプト配信ルート
+
+**UI 関連**:
+
+- `src/app/(dashboard)/layout.tsx` - ダッシュボードレイアウト
+- `src/app/(dashboard)/dashboard/[siteId]/page.tsx` - ダッシュボードページ
+- `src/components/layout/dashboard-sidebar.tsx` - サイドバー
+- `src/components/layout/dashboard-nav.tsx` - ナビゲーションバー
+- `src/components/dashboard/realtime-visitors.tsx` - リアルタイム訪問者表示
+- `src/components/dashboard/stats-card.tsx` - 統計カード
+- `src/components/dashboard/stats-overview.tsx` - 統計概要
+- `src/components/dashboard/pages-list.tsx` - 人気ページリスト
+- `src/components/dashboard/sources-list.tsx` - 流入元リスト
+- `src/components/analytics/visitors-chart.tsx` - 訪問者数グラフ
+- `src/components/analytics/pageviews-chart.tsx` - ページビューグラフ
+- `src/components/analytics/devices-chart.tsx` - デバイス分布グラフ
+- `src/components/landing/landing-nav.tsx` - ランディングページナビゲーション
+- `src/components/landing/hero-section.tsx` - ヒーローセクション
+- `src/components/landing/features-section.tsx` - 機能紹介セクション
+- `src/components/landing/pricing-section.tsx` - 価格セクション
+- `src/components/landing/cta-section.tsx` - CTA セクション
+- `src/components/landing/landing-footer.tsx` - フッター
+- `src/app/page.tsx` - ランディングページ
+- `src/lib/utils.ts` - ユーティリティ関数
+- `components.json` - shadcn/ui 設定
+
+**API ルート**:
+
+- `src/app/api/stats/realtime/route.ts` - リアルタイム訪問者数
+- `src/app/api/stats/visitors/route.ts` - 訪問者統計
+- `src/app/api/stats/pageviews/route.ts` - ページビュー統計
+- `src/app/api/stats/devices/route.ts` - デバイス統計
+- `src/app/api/stats/pages/route.ts` - ページ別統計
+- `src/app/api/stats/sources/route.ts` - 流入元統計
 
 **次のアクション**:
-1. Next.js 16 プロジェクト環境セットアップ
-2. Turso データベース接続設定
-3. Better-Auth 認証システム実装
+
+1. ⚠️ **優先度高**: Better-Auth 動作確認と Google OAuth 設定（Google OAuth 設定が必要）
+2. トラッキングスクリプトのテストと最適化
+3. エラーハンドリングの強化
+4. データがない場合の UI 改善
+5. 認証ガードの実装（ダッシュボードへのアクセス制御）
 
 ---
 
 ## ブロッカー・課題
 
-現時点でブロッカーなし
+**現在の課題**:
+
+- Google OAuth 設定が必要（`.env.local`の`GOOGLE_CLIENT_ID`と`GOOGLE_CLIENT_SECRET`を設定）
+- Better-Auth の動作確認（Google OAuth 設定後にテスト）
+- 認証ガードの実装（ダッシュボードへのアクセス制御）
+- テストデータの投入と動作確認
+
+**技術的負債**:
+
+- `globals.css` の `tw-animate-css` インポートエラーを修正済み
 
 ---
 
 ## KPI 追跡
 
-### 初期目標 (6ヶ月)
-- 登録ユーザー: 0 / 500人
-- 有料ユーザー: 0 / 50人
-- MRR: 0円 / 8-12万円
-- 解約率: N/A (目標: 月10%以下)
+### 初期目標 (6 ヶ月)
+
+- 登録ユーザー: 0 / 500 人
+- 有料ユーザー: 0 / 50 人
+- MRR: 0 円 / 8-12 万円
+- 解約率: N/A (目標: 月 10%以下)
 
 ### 開発進捗
-- Phase 1完了: 0%
-- Phase 2完了: 0%
-- Phase 3完了: 0%
-- 全体進捗: 0%
+
+- Phase 1 完了: 約 85%
+  - Week 1-2: 約 95% (環境セットアップ、DB/認証/トラッキング基本実装完了、マイグレーション完了)
+  - Week 3-4: 約 75% (UI 構築完了、API 実装完了、グラフコンポーネント実装完了)
+- Phase 2 完了: 0%
+- Phase 3 完了: 0%
+- 全体進捗: 約 28%

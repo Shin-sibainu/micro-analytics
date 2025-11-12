@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 import { DashboardNav } from "@/components/layout/dashboard-nav";
 
 export default function DashboardLayout({
@@ -8,16 +7,11 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans flex flex-col">
       <DashboardNav />
-      <div className="flex">
-        <DashboardSidebar />
-        <main className="flex-1 p-6 lg:p-8">
-          <Suspense fallback={<DashboardSkeleton />}>
-            {children}
-          </Suspense>
-        </main>
-      </div>
+      <main className="flex-1">
+        <Suspense fallback={<DashboardSkeleton />}>{children}</Suspense>
+      </main>
     </div>
   );
 }

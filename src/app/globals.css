@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -112,11 +111,75 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Plausible Design Tokens - Color System */
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+      "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Plausible Color Tokens */
+  :root {
+    --plausible-indigo-400: #818cf8;
+    --plausible-indigo-500: #6366f1;
+    --plausible-indigo-600: #4f46e5;
+    --plausible-indigo-700: #4338ca;
+    --plausible-gray-50: #f9fafb;
+    --plausible-gray-100: #f3f4f6;
+    --plausible-gray-200: #e5e7eb;
+    --plausible-gray-300: #d1d5db;
+    --plausible-gray-400: #9ca3af;
+    --plausible-gray-500: #6b7280;
+    --plausible-gray-800: #1f2937;
+    --plausible-gray-900: #111827;
+    --plausible-gray-950: #020617;
+  }
+
+  .dark {
+    --plausible-gray-850: #1e293b;
+  }
+
+  /* Container utility */
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  @media (min-width: 1280px) {
+    .container {
+      max-width: 1280px;
+    }
+  }
+
+  @media print {
+    .container.print\:max-w-full {
+      max-width: 100%;
+    }
+  }
+
+  /* Gray-850 for dark mode */
+  .dark .bg-gray-850 {
+    background-color: var(--plausible-gray-850);
   }
 }

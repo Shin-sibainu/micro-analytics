@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ja" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ダッシュボード - Coffee Analytics</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* ========================================
+       RESET & BASE
+       ======================================== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      /* Plausible Design Tokens */
+      --color-indigo-400: #818cf8;
+      --color-indigo-500: #6366f1;
+      --color-indigo-600: #4f46e5;
+      --color-indigo-700: #4338ca;
+
+      --color-blue-200: #bfdbfe;
+      --color-blue-900: #1e3a8a;
+
+      --color-green-500: #22c55e;
+      --color-green-600: #16a34a;
+      --color-red-500: #ef4444;
+      --color-yellow-500: #eab308;
+
+      --color-gray-50:  #f9fafb;
+      --color-gray-100: #f3f4f6;
+      --color-gray-200: #e5e7eb;
+      --color-gray-300: #d1d5db;
+      --color-gray-400: #9ca3af;
+      --color-gray-500: #6b7280;
+      --color-gray-600: #4b5563;
+      --color-gray-700: #374151;
+      --color-gray-800: #1f2937;
+      --color-gray-900: #111827;
+
+      --color-white: #ffffff;
+
+      --spacing-2: 0.5rem;
+      --spacing-3: 0.75rem;
+      --spacing-4: 1rem;
+      --spacing-5: 1.25rem;
+      --spacing-6: 1.5rem;
+      --spacing-8: 2rem;
+      --spacing-12: 3rem;
+
+      --radius-sm: 0.125rem;
+      --radius-md: 0.375rem;
+
+      --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-900);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ========================================
+       CONTAINER
+       ======================================== */
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: var(--spacing-4);
+      padding-right: var(--spacing-4);
+    }
+
+    @media (min-width: 640px) {
+      .container {
+        padding-left: var(--spacing-6);
+        padding-right: var(--spacing-6);
+      }
+    }
+
+    @media print {
+      .container {
+        max-width: 100%;
+      }
+    }
+
+    /* ========================================
+       NAVIGATION
+       ======================================== */
+    .nav {
+      position: relative;
+      z-index: 20;
+      padding: var(--spacing-8) 0;
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 2.5rem;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      flex: 1;
+    }
+
+    .logo {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-gray-900);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+
+    .logo-emoji {
+      font-size: 1.75rem;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-6);
+    }
+
+    .nav-link {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-gray-500);
+      text-decoration: none;
+      transition: color 150ms ease-in-out;
+    }
+
+    .nav-link:hover {
+      color: var(--color-gray-900);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 500;
+      border: 1px solid transparent;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 150ms ease-in-out;
+      text-decoration: none;
+      line-height: 1.5;
+    }
+
+    .button-primary {
+      color: var(--color-white);
+      background-color: var(--color-indigo-600);
+    }
+
+    .button-primary:hover {
+      background-color: var(--color-indigo-500);
+    }
+
+    /* ========================================
+       MAIN CONTENT
+       ======================================== */
+    main {
+      flex: 1;
+    }
+
+    /* Stats Container - Plausible style */
+    .stats-container {
+      background-color: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-6);
+      margin-bottom: var(--spacing-6);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: var(--spacing-4);
+    }
+
+    @media (min-width: 640px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    .stat-item {
+      padding: var(--spacing-4);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    @media (min-width: 1024px) {
+      .stat-item {
+        border-bottom: none;
+        border-right: 1px solid var(--color-gray-100);
+      }
+
+      .stat-item:last-child {
+        border-right: none;
+      }
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      margin-bottom: var(--spacing-2);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-2);
+    }
+
+    .stat-comparison {
+      font-size: 0.875rem;
+      color: var(--color-gray-500);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-2);
+    }
+
+    .stat-trend {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.125rem 0.375rem;
+      border-radius: var(--radius-sm);
+    }
+
+    .stat-trend.positive {
+      background-color: #dcfce7;
+      color: var(--color-green-600);
+    }
+
+    .stat-trend.negative {
+      background-color: #fee2e2;
+      color: var(--color-red-500);
+    }
+
+    /* Content Grid */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: var(--spacing-6);
+    }
+
+    @media (min-width: 1024px) {
+      .content-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .content-card {
+      background-color: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: var(--spacing-4) var(--spacing-6);
+      border-bottom: 1px solid var(--color-gray-100);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+    }
+
+    .card-link {
+      font-size: 0.875rem;
+      color: var(--color-indigo-600);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .card-link:hover {
+      color: var(--color-indigo-700);
+    }
+
+    .card-body {
+      padding: var(--spacing-6);
+    }
+
+    /* List Items */
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-3) 0;
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .list-item:last-child {
+      border-bottom: none;
+    }
+
+    .list-item-content {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-3);
+    }
+
+    .list-rank {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-400);
+      width: 1.5rem;
+    }
+
+    .list-text {
+      font-size: 0.875rem;
+      color: var(--color-gray-900);
+      font-weight: 500;
+    }
+
+    .list-meta {
+      font-size: 0.75rem;
+      color: var(--color-gray-500);
+      margin-top: 0.25rem;
+    }
+
+    .list-value {
+      font-size: 0.875rem;
+      color: var(--color-gray-600);
+      font-weight: 500;
+    }
+
+    .change-indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-1);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .change-indicator.up {
+      color: var(--color-green-600);
+    }
+
+    .change-indicator.down {
+      color: var(--color-red-500);
+    }
+
+    .change-indicator.neutral {
+      color: var(--color-gray-400);
+    }
+
+    /* CTA Section */
+    .cta-section {
+      background-color: var(--color-gray-50);
+      padding: var(--spacing-12) 0;
+    }
+
+    .cta-inner {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-8);
+      align-items: flex-start;
+    }
+
+    @media (min-width: 1024px) {
+      .cta-inner {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .cta-text h2 {
+      font-size: 1.875rem;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-4);
+    }
+
+    @media (min-width: 640px) {
+      .cta-text h2 {
+        font-size: 2.25rem;
+      }
+    }
+
+    .cta-text .highlight {
+      color: var(--color-indigo-600);
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: var(--spacing-3);
+      flex-shrink: 0;
+    }
+
+    .button-secondary {
+      color: var(--color-indigo-600);
+      background-color: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+    }
+
+    .button-secondary:hover {
+      color: var(--color-indigo-500);
+      background-color: var(--color-gray-50);
+    }
+
+    /* ========================================
+       FOOTER
+       ======================================== */
+    .footer {
+      background-color: var(--color-gray-800);
+      color: var(--color-gray-300);
+      padding: var(--spacing-12) 0;
+      margin-top: var(--spacing-12);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(1, 1fr);
+      gap: var(--spacing-8);
+    }
+
+    @media (min-width: 768px) {
+      .footer-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .footer-section h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-gray-400);
+      margin-bottom: var(--spacing-4);
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: var(--spacing-3);
+    }
+
+    .footer-link {
+      color: var(--color-gray-300);
+      text-decoration: none;
+      transition: color 150ms ease-in-out;
+    }
+
+    .footer-link:hover {
+      color: var(--color-white);
+    }
+
+    /* ========================================
+       CHARTS & METERS
+       ======================================== */
+    .chart-container {
+      background-color: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-md);
+      padding: var(--spacing-6);
+      margin-bottom: var(--spacing-6);
+    }
+
+    .chart-header {
+      margin-bottom: var(--spacing-6);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chart-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-gray-900);
+    }
+
+    .chart-canvas {
+      position: relative;
+      height: 300px;
+    }
+
+    /* Progress bars / meters */
+    .meter-item {
+      margin-bottom: var(--spacing-4);
+    }
+
+    .meter-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .meter-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-2);
+    }
+
+    .meter-label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-gray-900);
+    }
+
+    .meter-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-gray-600);
+    }
+
+    .meter-bar {
+      width: 100%;
+      height: 8px;
+      background-color: var(--color-gray-100);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background-color: var(--color-indigo-600);
+      border-radius: var(--radius-sm);
+      transition: width 1s ease-out;
+    }
+
+    /* Donut chart container */
+    .donut-container {
+      position: relative;
+      max-width: 240px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <div class="container">
+      <div class="nav-inner">
+        <div class="nav-left">
+          <a href="coffee-analytics-lp.html" class="logo">
+            <span class="logo-emoji">☕</span>
+            <span>Coffee Analytics</span>
+          </a>
+        </div>
+
+        <div class="nav-right">
+          <a href="coffee-analytics-lp.html" class="nav-link">ログイン</a>
+          <a href="coffee-analytics-lp.html" class="button button-primary">サインアップ</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      <!-- Stats Container -->
+      <div class="stats-container">
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-label">訪問者数</div>
+            <div class="stat-value">1,234</div>
+            <div class="stat-comparison">
+              <span class="stat-trend positive">↑ 15%</span>
+              <span>vs 前週</span>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-label">ページビュー</div>
+            <div class="stat-value">3,456</div>
+            <div class="stat-comparison">
+              <span class="stat-trend positive">↑ 8%</span>
+              <span>vs 前週</span>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-label">平均滞在時間</div>
+            <div class="stat-value">2:34</div>
+            <div class="stat-comparison">
+              <span class="stat-trend negative">↓ 5%</span>
+              <span>vs 前週</span>
+            </div>
+          </div>
+
+          <div class="stat-item">
+            <div class="stat-label">直帰率</div>
+            <div class="stat-value">42.3%</div>
+            <div class="stat-comparison">
+              <span class="stat-trend positive">↓ 3%</span>
+              <span>vs 前週</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Visitor Trend Chart -->
+      <div class="chart-container">
+        <div class="chart-header">
+          <h3 class="chart-title">訪問者推移（過去30日）</h3>
+        </div>
+        <div class="chart-canvas">
+          <canvas id="visitorChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Content Grid -->
+      <div class="content-grid">
+        <!-- Top Keywords -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3 class="card-title">トップキーワード</h3>
+            <a href="#" class="card-link">詳細 →</a>
+          </div>
+          <div class="card-body">
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">1.</span>
+                <div>
+                  <div class="list-text">GA4 使い方</div>
+                  <div class="list-meta">324 clicks • CTR 5.2%</div>
+                </div>
+              </div>
+              <div class="change-indicator up">↑2</div>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">2.</span>
+                <div>
+                  <div class="list-text">SEO ツール 比較</div>
+                  <div class="list-meta">289 clicks • CTR 4.8%</div>
+                </div>
+              </div>
+              <div class="change-indicator neutral">→</div>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">3.</span>
+                <div>
+                  <div class="list-text">個人開発 収益化</div>
+                  <div class="list-meta">201 clicks • CTR 3.9%</div>
+                </div>
+              </div>
+              <div class="change-indicator down">↓1</div>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">4.</span>
+                <div>
+                  <div class="list-text">アクセス解析 おすすめ</div>
+                  <div class="list-meta">178 clicks • CTR 4.2%</div>
+                </div>
+              </div>
+              <div class="change-indicator up">↑3</div>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">5.</span>
+                <div>
+                  <div class="list-text">サイト分析 無料</div>
+                  <div class="list-meta">156 clicks • CTR 3.7%</div>
+                </div>
+              </div>
+              <div class="change-indicator neutral">→</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Pages -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3 class="card-title">トップページ</h3>
+            <a href="#" class="card-link">詳細 →</a>
+          </div>
+          <div class="card-body">
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">1.</span>
+                <div>
+                  <div class="list-text">/blog/seo-tips</div>
+                  <div class="list-meta">512 views • 平均滞在 3:42</div>
+                </div>
+              </div>
+              <span class="list-value">512</span>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">2.</span>
+                <div>
+                  <div class="list-text">/blog/ga4-tutorial</div>
+                  <div class="list-meta">489 views • 平均滞在 4:15</div>
+                </div>
+              </div>
+              <span class="list-value">489</span>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">3.</span>
+                <div>
+                  <div class="list-text">/</div>
+                  <div class="list-meta">423 views • 平均滞在 1:23</div>
+                </div>
+              </div>
+              <span class="list-value">423</span>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">4.</span>
+                <div>
+                  <div class="list-text">/product/pricing</div>
+                  <div class="list-meta">301 views • 平均滞在 2:08</div>
+                </div>
+              </div>
+              <span class="list-value">301</span>
+            </div>
+
+            <div class="list-item">
+              <div class="list-item-content">
+                <span class="list-rank">5.</span>
+                <div>
+                  <div class="list-text">/blog/analytics-101</div>
+                  <div class="list-meta">278 views • 平均滞在 3:56</div>
+                </div>
+              </div>
+              <span class="list-value">278</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Traffic Sources -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3 class="card-title">流入元</h3>
+            <a href="#" class="card-link">詳細 →</a>
+          </div>
+          <div class="card-body">
+            <div class="donut-container">
+              <canvas id="trafficChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Devices -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3 class="card-title">デバイス</h3>
+            <a href="#" class="card-link">詳細 →</a>
+          </div>
+          <div class="card-body">
+            <div class="meter-item">
+              <div class="meter-header">
+                <span class="meter-label">💻 Desktop</span>
+                <span class="meter-value">52.4%</span>
+              </div>
+              <div class="meter-bar">
+                <div class="meter-fill" style="width: 52.4%"></div>
+              </div>
+            </div>
+
+            <div class="meter-item">
+              <div class="meter-header">
+                <span class="meter-label">📱 Mobile</span>
+                <span class="meter-value">42.1%</span>
+              </div>
+              <div class="meter-bar">
+                <div class="meter-fill" style="width: 42.1%"></div>
+              </div>
+            </div>
+
+            <div class="meter-item">
+              <div class="meter-header">
+                <span class="meter-label">📲 Tablet</span>
+                <span class="meter-value">5.5%</span>
+              </div>
+              <div class="meter-bar">
+                <div class="meter-fill" style="width: 5.5%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="cta-section">
+      <div class="container">
+        <div class="cta-inner">
+          <div class="cta-text">
+            <h2>
+              このデータをあなたのサイトで？<br>
+              <span class="highlight">今すぐ無料トライアルを開始</span>
+            </h2>
+          </div>
+          <div class="cta-buttons">
+            <a href="coffee-analytics-lp.html" class="button button-primary">開始する</a>
+            <a href="coffee-analytics-lp.html" class="button button-secondary">詳しく見る</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-section">
+          <h4>Coffee Analytics</h4>
+          <p style="margin-top: var(--spacing-4); line-height: 1.75;">
+            コーヒーを飲む間に理解できるシンプルなSEO分析ツール。
+          </p>
+        </div>
+
+        <div class="footer-section">
+          <h4>プロダクト</h4>
+          <ul class="footer-links">
+            <li><a href="coffee-analytics-lp.html#features" class="footer-link">機能</a></li>
+            <li><a href="coffee-analytics-lp.html#pricing" class="footer-link">料金プラン</a></li>
+            <li><a href="#" class="footer-link">使い方</a></li>
+            <li><a href="#" class="footer-link">よくある質問</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h4>会社情報</h4>
+          <ul class="footer-links">
+            <li><a href="#" class="footer-link">お問い合わせ</a></li>
+            <li><a href="#" class="footer-link">プライバシーポリシー</a></li>
+            <li><a href="#" class="footer-link">利用規約</a></li>
+            <li><a href="#" class="footer-link">特定商取引法</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Chart.js default settings
+    Chart.defaults.font.family = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
+    Chart.defaults.color = '#6b7280';
+
+    // Visitor Trend Chart (Line Chart)
+    const visitorCtx = document.getElementById('visitorChart');
+    if (visitorCtx) {
+      // Generate 30 days of dummy data
+      const days = 30;
+      const labels = [];
+      const data = [];
+      const today = new Date();
+
+      for (let i = days - 1; i >= 0; i--) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        labels.push(date.getMonth() + 1 + '/' + date.getDate());
+
+        // Generate realistic random data with trend
+        const baseValue = 800 + (days - i) * 15; // Upward trend
+        const randomVariation = Math.random() * 200 - 100;
+        data.push(Math.max(600, Math.floor(baseValue + randomVariation)));
+      }
+
+      new Chart(visitorCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: '訪問者数',
+            data: data,
+            borderColor: '#4f46e5',
+            backgroundColor: 'rgba(79, 70, 229, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: '#4f46e5',
+            pointHoverBorderColor: '#ffffff',
+            pointHoverBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          },
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: '#1f2937',
+              padding: 12,
+              titleColor: '#f3f4f6',
+              bodyColor: '#f3f4f6',
+              borderColor: '#374151',
+              borderWidth: 1,
+              displayColors: false,
+              callbacks: {
+                label: function(context) {
+                  return context.parsed.y.toLocaleString() + ' 訪問者';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                maxRotation: 0,
+                autoSkipPadding: 20
+              }
+            },
+            y: {
+              border: {
+                display: false
+              },
+              grid: {
+                color: '#f3f4f6'
+              },
+              ticks: {
+                callback: function(value) {
+                  return value.toLocaleString();
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Traffic Sources Chart (Doughnut Chart)
+    const trafficCtx = document.getElementById('trafficChart');
+    if (trafficCtx) {
+      new Chart(trafficCtx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Google', 'Direct', 'Twitter', 'Referral'],
+          datasets: [{
+            data: [45.2, 28.7, 15.3, 10.8],
+            backgroundColor: [
+              '#4f46e5', // Indigo
+              '#818cf8', // Light Indigo
+              '#a5b4fc', // Lighter Indigo
+              '#c7d2fe'  // Lightest Indigo
+            ],
+            borderWidth: 0,
+            hoverOffset: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: true,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 15,
+                usePointStyle: true,
+                pointStyle: 'circle',
+                font: {
+                  size: 13
+                },
+                generateLabels: function(chart) {
+                  const data = chart.data;
+                  return data.labels.map((label, i) => ({
+                    text: label + ' (' + data.datasets[0].data[i] + '%)',
+                    fillStyle: data.datasets[0].backgroundColor[i],
+                    hidden: false,
+                    index: i
+                  }));
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#1f2937',
+              padding: 12,
+              titleColor: '#f3f4f6',
+              bodyColor: '#f3f4f6',
+              borderColor: '#374151',
+              borderWidth: 1,
+              displayColors: true,
+              callbacks: {
+                label: function(context) {
+                  return context.label + ': ' + context.parsed + '%';
+                }
+              }
+            }
+          },
+          cutout: '65%'
+        }
+      });
+    }
+
+    // Animate progress bars on load
+    window.addEventListener('load', function() {
+      const fills = document.querySelectorAll('.meter-fill');
+      fills.forEach(fill => {
+        const width = fill.style.width;
+        fill.style.width = '0';
+        setTimeout(() => {
+          fill.style.width = width;
+        }, 100);
+      });
+    });
+  </script>
+
+</body>
+</html>
