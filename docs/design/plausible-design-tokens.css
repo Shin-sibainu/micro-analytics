@@ -1,0 +1,470 @@
+/**
+ * ============================================
+ * PLAUSIBLE ANALYTICS DESIGN TOKENS
+ * ============================================
+ *
+ * Version: 1.0.0
+ * Source: plausible.io
+ * Date: 2025-01-11
+ *
+ * ピクセルパーフェクトで抽出されたPlausibleのデザイントークン
+ * Tailwind CSSベースのスタイルをCSS変数として定義
+ *
+ * 使用方法:
+ * 1. このファイルをインポート
+ * 2. var(--color-indigo-600) のように変数を使用
+ * 3. ダークモードは .dark クラスで自動切り替え
+ */
+
+:root {
+  /* ========================================
+     COLOR SYSTEM - PRIMARY
+     ======================================== */
+
+  /* Indigo - Primary/CTA Color */
+  --color-indigo-400: #818cf8;
+  --color-indigo-500: #6366f1;
+  --color-indigo-600: #4f46e5;  /* Primary CTA */
+  --color-indigo-700: #4338ca;
+
+  /* Blue - Accent/Info */
+  --color-blue-200: #bfdbfe;
+  --color-blue-900: #1e3a8a;
+
+  /* ========================================
+     COLOR SYSTEM - GRAYSCALE (LIGHT MODE)
+     ======================================== */
+
+  --color-gray-50:  #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* ========================================
+     COLOR SYSTEM - DARK MODE SPECIFIC
+     ======================================== */
+
+  --color-gray-850: #1e293b;  /* Section background (dark) */
+  --color-gray-950: #020617;  /* Body background (dark) */
+
+  /* ========================================
+     SEMANTIC COLORS
+     ======================================== */
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Background colors */
+  --color-background-primary: var(--color-gray-50);
+  --color-background-secondary: var(--color-white);
+  --color-background-tertiary: var(--color-gray-100);
+
+  /* Text colors */
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-500);
+  --color-text-tertiary: var(--color-gray-400);
+  --color-text-inverse: var(--color-white);
+
+  /* Border colors */
+  --color-border-primary: var(--color-gray-200);
+  --color-border-secondary: var(--color-gray-300);
+
+  /* CTA colors */
+  --color-cta-primary: var(--color-indigo-600);
+  --color-cta-primary-hover: var(--color-indigo-500);
+  --color-cta-secondary: var(--color-white);
+
+  /* ========================================
+     TYPOGRAPHY
+     ======================================== */
+
+  /* Font Family */
+  --font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-system: var(--font-family-primary);
+
+  /* Font Sizes */
+  --font-size-xs:   0.75rem;    /* 12px */
+  --font-size-sm:   0.875rem;   /* 14px */
+  --font-size-base: 1rem;       /* 16px */
+  --font-size-lg:   1.125rem;   /* 18px */
+  --font-size-xl:   1.25rem;    /* 20px */
+  --font-size-2xl:  1.5rem;     /* 24px */
+  --font-size-3xl:  1.875rem;   /* 30px */
+  --font-size-4xl:  2.25rem;    /* 36px */
+  --font-size-5xl:  3rem;       /* 48px */
+
+  /* Line Heights */
+  --line-height-none:   1;
+  --line-height-tight:  1.25;    /* 1.25 */
+  --line-height-snug:   1.375;   /* 1.375 */
+  --line-height-normal: 1.5;     /* 1.5 */
+  --line-height-relaxed: 1.625;  /* 1.625 */
+  --line-height-loose:  2;       /* 2 */
+
+  /* Font Weights */
+  --font-weight-normal:    400;
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+  --font-weight-extrabold: 800;
+
+  /* Letter Spacing */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight:   -0.025em;
+  --letter-spacing-normal:  0;
+  --letter-spacing-wide:    0.025em;
+  --letter-spacing-wider:   0.05em;
+  --letter-spacing-widest:  0.1em;
+
+  /* ========================================
+     SPACING SYSTEM (4px base)
+     ======================================== */
+
+  --spacing-0:  0;
+  --spacing-1:  0.25rem;   /* 4px */
+  --spacing-2:  0.5rem;    /* 8px */
+  --spacing-3:  0.75rem;   /* 12px */
+  --spacing-4:  1rem;      /* 16px */
+  --spacing-5:  1.25rem;   /* 20px */
+  --spacing-6:  1.5rem;    /* 24px */
+  --spacing-8:  2rem;      /* 32px */
+  --spacing-10: 2.5rem;    /* 40px */
+  --spacing-12: 3rem;      /* 48px */
+  --spacing-16: 4rem;      /* 64px */
+  --spacing-20: 5rem;      /* 80px */
+  --spacing-24: 6rem;      /* 96px */
+  --spacing-32: 8rem;      /* 128px */
+
+  /* ========================================
+     BORDER RADIUS
+     ======================================== */
+
+  --radius-none: 0;
+  --radius-sm:   0.125rem;  /* 2px - rounded-sm */
+  --radius-md:   0.375rem;  /* 6px - rounded-md */
+  --radius-lg:   0.5rem;    /* 8px - rounded-lg */
+  --radius-xl:   0.75rem;   /* 12px */
+  --radius-full: 9999px;    /* Fully rounded */
+
+  /* ========================================
+     SHADOWS
+     ======================================== */
+
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+  /* Focus ring */
+  --shadow-focus: 0 0 0 3px rgba(79, 70, 229, 0.5);
+
+  /* ========================================
+     Z-INDEX SCALE
+     ======================================== */
+
+  --z-index-base:       0;
+  --z-index-dropdown:   10;
+  --z-index-sticky:     20;
+  --z-index-fixed:      30;
+  --z-index-modal:      40;
+  --z-index-popover:    50;
+  --z-index-tooltip:    60;
+
+  /* ========================================
+     TRANSITIONS
+     ======================================== */
+
+  --transition-duration-fast:   75ms;
+  --transition-duration-base:   150ms;
+  --transition-duration-slow:   300ms;
+
+  --transition-timing-default:  cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-timing-in:       cubic-bezier(0.4, 0, 1, 1);
+  --transition-timing-out:      cubic-bezier(0, 0, 0.2, 1);
+  --transition-timing-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Common transitions */
+  --transition-all: all var(--transition-duration-base) var(--transition-timing-default);
+  --transition-colors: background-color, border-color, color var(--transition-duration-base) var(--transition-timing-default);
+
+  /* ========================================
+     BREAKPOINTS (for reference in JS)
+     ======================================== */
+
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* ========================================
+     CONTAINER
+     ======================================== */
+
+  --container-max-width: 1280px;
+  --container-padding-mobile: var(--spacing-4);
+  --container-padding-tablet: var(--spacing-6);
+  --container-padding-desktop: var(--spacing-8);
+}
+
+/* ============================================
+   DARK MODE OVERRIDES
+   ============================================ */
+
+.dark {
+  /* Background colors */
+  --color-background-primary: var(--color-gray-950);
+  --color-background-secondary: var(--color-gray-900);
+  --color-background-tertiary: var(--color-gray-850);
+
+  /* Text colors */
+  --color-text-primary: var(--color-gray-100);
+  --color-text-secondary: var(--color-gray-200);
+  --color-text-tertiary: var(--color-gray-400);
+  --color-text-inverse: var(--color-gray-900);
+
+  /* Border colors */
+  --color-border-primary: var(--color-gray-700);
+  --color-border-secondary: var(--color-gray-600);
+
+  /* CTA colors (hover states change in dark mode) */
+  --color-cta-primary-hover: var(--color-indigo-400);
+  --color-cta-secondary: var(--color-gray-800);
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Container */
+.plausible-container {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--container-padding-mobile);
+  padding-right: var(--container-padding-mobile);
+}
+
+@media (min-width: 640px) {
+  .plausible-container {
+    padding-left: var(--container-padding-tablet);
+    padding-right: var(--container-padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .plausible-container {
+    padding-left: var(--container-padding-desktop);
+    padding-right: var(--container-padding-desktop);
+  }
+}
+
+/* Typography utilities */
+.plausible-heading-1 {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-extrabold);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text-primary);
+}
+
+@media (min-width: 640px) {
+  .plausible-heading-1 {
+    font-size: var(--font-size-4xl);
+  }
+}
+
+.plausible-heading-2 {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-snug);
+  color: var(--color-text-primary);
+}
+
+.plausible-body {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-primary);
+}
+
+.plausible-body-small {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   COMPONENT CLASSES
+   ============================================ */
+
+/* Primary Button */
+.plausible-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-5);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-white);
+  background-color: var(--color-cta-primary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+
+.plausible-button-primary:hover {
+  background-color: var(--color-cta-primary-hover);
+}
+
+.plausible-button-primary:focus {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: var(--shadow-focus);
+}
+
+/* Secondary Button */
+.plausible-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-3) var(--spacing-5);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-indigo-600);
+  background-color: var(--color-white);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+
+.plausible-button-secondary:hover {
+  color: var(--color-indigo-500);
+}
+
+.dark .plausible-button-secondary {
+  color: var(--color-gray-100);
+  background-color: var(--color-gray-800);
+}
+
+.dark .plausible-button-secondary:hover {
+  color: var(--color-indigo-400);
+}
+
+/* Link */
+.plausible-link {
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  transition: var(--transition-colors);
+}
+
+.plausible-link:hover {
+  color: var(--color-text-primary);
+}
+
+/* Navigation */
+.plausible-nav {
+  position: relative;
+  z-index: var(--z-index-sticky);
+  padding-top: var(--spacing-8);
+  padding-bottom: var(--spacing-8);
+}
+
+/* Footer */
+.plausible-footer {
+  background-color: var(--color-gray-800);
+  margin-top: var(--spacing-24);
+}
+
+.dark .plausible-footer {
+  background-color: var(--color-gray-900);
+}
+
+.plausible-footer-title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: var(--letter-spacing-wider);
+  text-transform: uppercase;
+  color: var(--color-gray-400);
+  line-height: var(--line-height-tight);
+}
+
+.plausible-footer-link {
+  font-size: var(--font-size-base);
+  color: var(--color-gray-300);
+  line-height: var(--line-height-relaxed);
+  text-decoration: none;
+  transition: var(--transition-colors);
+}
+
+.plausible-footer-link:hover {
+  color: var(--color-white);
+}
+
+/* Alert/Banner */
+.plausible-alert {
+  width: 100%;
+  padding: var(--spacing-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  background-color: var(--color-blue-200);
+  color: var(--color-blue-900);
+  border-radius: var(--radius-sm);
+  transition: var(--transition-all);
+}
+
+/* Section */
+.plausible-section {
+  background-color: var(--color-background-primary);
+}
+
+.plausible-section-inner {
+  padding: var(--spacing-12) 0;
+}
+
+@media (min-width: 1024px) {
+  .plausible-section-inner {
+    padding: var(--spacing-16) 0;
+  }
+}
+
+/* ============================================
+   RESET & BASE STYLES
+   ============================================ */
+
+body.plausible {
+  font-family: var(--font-family-primary);
+  background-color: var(--color-background-primary);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-normal);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Print styles */
+@media print {
+  .plausible-container {
+    max-width: 100%;
+  }
+}
