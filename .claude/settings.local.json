@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__next-devtools__init",
+      "mcp__next-devtools__nextjs_docs"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
