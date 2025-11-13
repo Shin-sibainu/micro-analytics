@@ -1,14 +1,19 @@
 import { Suspense } from "react";
 import { DashboardNav } from "@/components/layout/dashboard-nav";
+import { getOptionalAuth } from "@/lib/auth/guard";
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // ユーザー情報を取得
+  const session = await getOptionalAuth();
+  const user = session?.user || null;
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-sans flex flex-col">
-      <DashboardNav />
+      <DashboardNav user={user} />
       <main className="flex-1">
         <Suspense fallback={<DashboardSkeleton />}>{children}</Suspense>
       </main>

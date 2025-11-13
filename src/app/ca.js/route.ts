@@ -1,20 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 
-// Edge Runtimeでは静的ファイルを直接配信できないため、
-// 実際の実装ではpublic/ca.jsをCDNから配信するか、
-// またはこのルートでスクリプトを動的に生成します
-export const runtime = 'edge';
+// ca.jsスクリプトを配信
+export const runtime = 'nodejs'; // Node.js runtimeを使用してファイルを読み込む
 
 export async function GET(request: NextRequest) {
-  // public/ca.jsを直接配信する代わりに、
-  // リダイレクトまたはインラインスクリプトを返す
-  // 本番環境ではCDNから配信することを推奨
-  
-  return NextResponse.redirect(new URL('/ca.js', request.url), {
-    status: 307,
-    headers: {
-      'Cache-Control': 'public, max-age=3600',
-    },
-  });
+  try {
+    // public/ca.jsを読み込む
+    const filePath = join(process.cwd(), 'public', 'ca.js');
+    const scriptContent = readFileSync(filePath, 'utf-8');
+    
+    return new NextResponse(scriptContent, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/javascript',
+        'Cache-Control': 'public, max-age=3600, s-maxage=3600',
+        'Access-Control-Allow-Origin': '*', // CORS対応
+      },
+    });
+  } catch (error) {
+    console.error('Failed to serve ca.js:', error);
+    return NextResponse.json(
+      { error: 'Failed to serve tracking script' },
+      { status: 500 }
+    );
+  }
 }
 

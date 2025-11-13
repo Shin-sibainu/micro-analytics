@@ -10,9 +10,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  defs,
-  linearGradient,
-  stop,
 } from "recharts";
 
 interface VisitorsChartProps {
@@ -71,12 +68,6 @@ export function VisitorsChart({ siteId }: VisitorsChartProps) {
       <div className="relative" style={{ height: "300px" }}>
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={data}>
-            <defs>
-              <linearGradient id="colorVisitors" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#4f46e5" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#4f46e5" stopOpacity={0.05} />
-              </linearGradient>
-            </defs>
             <CartesianGrid
               strokeDasharray="3 3"
               stroke="#e5e7eb"
@@ -107,13 +98,13 @@ export function VisitorsChart({ siteId }: VisitorsChartProps) {
                 "訪問者数",
               ]}
             />
-            <Legend display={false} />
             <Area
               type="monotone"
               dataKey="visitors"
               stroke="#4f46e5"
               strokeWidth={2}
-              fill="url(#colorVisitors)"
+              fill="#4f46e5"
+              fillOpacity={0.1}
               name="訪問者数"
               dot={false}
               activeDot={{

@@ -1,0 +1,1 @@
+ALTER TABLE `verification` ADD `updated_at` integer DEFAULT (unixepoch());

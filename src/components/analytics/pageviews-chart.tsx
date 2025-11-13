@@ -89,7 +89,6 @@ export function PageviewsChart({ siteId }: PageviewsChartProps) {
               }}
               labelStyle={{ color: "#f3f4f6" }}
             />
-            <Legend display={false} />
             <Bar dataKey="pageviews" fill="#4f46e5" name="ページビュー" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>

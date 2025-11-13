@@ -10,7 +10,7 @@ export const users = sqliteTable("users", {
   email: text("email").notNull().unique(),
   name: text("name"),
   image: text("image"),
-  googleId: text("google_id").notNull().unique(),
+  emailVerified: integer("email_verified", { mode: "boolean" }).default(false),
   planType: text("plan_type").default("essential"),
   createdAt: integer("created_at", { mode: "timestamp" }).default(
     sql`(unixepoch())`
@@ -141,8 +141,60 @@ export const sessions = sqliteTable("sessions", {
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
+  token: text("token").notNull().unique(),
+  ipAddress: text("ip_address"), // クライアントのIPアドレス
+  userAgent: text("user_agent"), // ユーザーエージェント
   expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(
+    sql`(unixepoch())`
+  ),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(unixepoch())`
+  ),
 });
+
+// OAuthアカウント連携（Better-Auth用）
+export const account = sqliteTable("account", {
+  id: text("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  accountId: text("account_id").notNull(),
+  provider: text("provider"), // "google" (Better AuthはproviderIdを使用)
+  providerId: text("provider_id").notNull(), // プロバイダー名（"google"など）
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  idToken: text("id_token"), // OAuth IDトークン
+  scope: text("scope"), // OAuthスコープ
+  expiresAt: integer("expires_at", { mode: "timestamp" }),
+  accessTokenExpiresAt: integer("access_token_expires_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" }).default(
+    sql`(unixepoch())`
+  ),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(unixepoch())`
+  ),
+});
+
+// 認証検証（Better-Auth用）
+export const verification = sqliteTable(
+  "verification",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: integer("expires_at", { mode: "timestamp" }).notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).default(
+      sql`(unixepoch())`
+    ),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+      sql`(unixepoch())`
+    ),
+  },
+  (table) => ({
+    identifierIdx: index("idx_verification_identifier").on(table.identifier),
+  })
+);
 
 // インデックス定義
 export const eventsIndexes = {
@@ -174,3 +226,7 @@ export type AiInsight = typeof aiInsights.$inferSelect;
 export type NewAiInsight = typeof aiInsights.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type NewSession = typeof sessions.$inferInsert;
+export type Account = typeof account.$inferSelect;
+export type NewAccount = typeof account.$inferInsert;
+export type Verification = typeof verification.$inferSelect;
+export type NewVerification = typeof verification.$inferInsert;

@@ -6,12 +6,47 @@
   'use strict';
 
   // 設定取得
-  const script = document.currentScript || document.querySelector('script[data-site]');
-  const siteId = script?.getAttribute('data-site');
+  // trackingIdはURLから取得（/js/ca-{trackingId}.js形式）
+  const script = document.currentScript || document.querySelector('script[src*="ca-"]');
+  const scriptUrl = script?.src || '';
+  const urlMatch = scriptUrl.match(/ca-([^.]+)\.js/);
+  const siteId = urlMatch ? urlMatch[1] : null;
   if (!siteId) return;
 
-  const endpoint = script?.getAttribute('data-endpoint') || '/track';
-  const baseUrl = window.location.origin;
+  // エンドポイントURLの取得
+  // スクリプトのURLからトラッキングサーバーのURLを推測
+  // 例: https://analytics.example.com/js/ca-xxx.js -> https://analytics.example.com/track
+  let endpointUrl;
+  if (scriptUrl) {
+    try {
+      const url = new URL(scriptUrl);
+      endpointUrl = url.origin + '/track';
+    } catch (e) {
+      // URL解析に失敗した場合は、data-endpoint属性を確認（後方互換性）
+      const endpointAttr = script?.getAttribute('data-endpoint');
+      if (endpointAttr) {
+        if (endpointAttr.startsWith('http://') || endpointAttr.startsWith('https://')) {
+          endpointUrl = endpointAttr;
+        } else {
+          endpointUrl = window.location.origin + (endpointAttr.startsWith('/') ? endpointAttr : '/' + endpointAttr);
+        }
+      } else {
+        endpointUrl = window.location.origin + '/track'; // デフォルト
+      }
+    }
+  } else {
+    // フォールバック: data-endpoint属性を確認（後方互換性）
+    const endpointAttr = script?.getAttribute('data-endpoint');
+    if (endpointAttr) {
+      if (endpointAttr.startsWith('http://') || endpointAttr.startsWith('https://')) {
+        endpointUrl = endpointAttr;
+      } else {
+        endpointUrl = window.location.origin + (endpointAttr.startsWith('/') ? endpointAttr : '/' + endpointAttr);
+      }
+    } else {
+      endpointUrl = window.location.origin + '/track'; // デフォルト
+    }
+  }
 
   // ユーティリティ関数
   const hash = (str) => {
@@ -118,10 +153,10 @@
     // Beacon API使用（可能な場合）
     if (navigator.sendBeacon) {
       const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-      navigator.sendBeacon(baseUrl + endpoint, blob);
+      navigator.sendBeacon(endpointUrl, blob);
     } else {
       // フォールバック: fetch
-      fetch(baseUrl + endpoint, {
+      fetch(endpointUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -172,5 +207,11 @@
   window.ca = window.ca || {};
   window.ca.track = track;
   window.ca.trackEvent = (name, value) => track('event', name, value);
+  window.ca.init = window.ca.init || function(i) { window.ca.o = i || {}; };
+  
+  // 自動初期化（既に初期化されている場合はスキップ）
+  if (!window.ca.o) {
+    window.ca.init();
+  }
 })();
 

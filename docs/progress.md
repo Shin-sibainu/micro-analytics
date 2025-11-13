@@ -75,29 +75,31 @@
 
 ---
 
-### Phase 2: 選択的機能 (2 ヶ月目) - 未着手
+### Phase 2: 選択的機能 (2 ヶ月目) - 進行中 (約 15%完了)
 
 #### Week 5-6: GSC 連携
 
-- [ ] Google Search Console API 連携
-  - [ ] OAuth スコープ拡張
-  - [ ] GSC データ取得 API 実装
-  - [ ] gscData テーブル実装
-- [ ] データ同期バッチ処理
-  - [ ] Vercel Cron Jobs 設定
-  - [ ] 日次データ同期ジョブ
-- [ ] SEO ダッシュボード追加
-  - [ ] キーワードランキング表示
-  - [ ] CTR 分析グラフ
-  - [ ] 検索順位推移グラフ
+- [x] Google Search Console API 連携
+  - [x] OAuth スコープ拡張
+  - [x] GSC データ取得 API 実装
+  - [x] gscData テーブル実装（既存スキーマ）
+- [x] データ同期バッチ処理
+  - [x] Vercel Cron Jobs 設定
+  - [x] 日次データ同期ジョブ
+- [x] SEO ダッシュボード追加
+  - [x] キーワードランキング表示
+  - [x] CTR 分析グラフ
+  - [x] 検索順位推移グラフ
 
 #### Week 7-8: UX 改善
 
-- [ ] オンボーディングウィザード
-  - [ ] ステップ 1: アカウント作成
-  - [ ] ステップ 2: サイト登録
-  - [ ] ステップ 3: 機能選択画面
-  - [ ] ステップ 4: トラッキングコード表示
+- [x] オンボーディングウィザード
+  - [x] ステップ 1: アカウント作成（Google OAuth）
+  - [x] ステップ 2: サイト登録（セッションストレージで一時保存）
+  - [x] ステップ 3: 機能選択画面（基本トラッキング/GSC/GA4）
+  - [x] ステップ 4: トラッキングコード表示（最後に DB 保存）
+  - [x] 進捗インジケーター実装
+  - [x] 「次へ」ボタンで任意に次のステップへ進める機能
 - [ ] トラッキング確認機能
   - [ ] 自動検証スクリプト
   - [ ] 設置状態の可視化
@@ -250,6 +252,19 @@
 - `src/app/api/stats/pages/route.ts` - ページ別統計
 - `src/app/api/stats/sources/route.ts` - 流入元統計
 
+**GSC 連携関連**:
+
+- `src/lib/gsc/client.ts` - GSC API クライアント
+- `src/app/api/connect/gsc/route.ts` - GSC 連携 API（開始/解除）
+- `src/app/api/sync/gsc/route.ts` - GSC データ同期バッチ処理
+- `src/app/api/seo/keywords/route.ts` - キーワードランキング API
+- `src/app/api/seo/ctr/route.ts` - CTR 分析 API
+- `src/app/api/seo/positions/route.ts` - 検索順位推移 API
+- `src/components/seo/keywords-list.tsx` - キーワードランキング表示
+- `src/components/seo/ctr-chart.tsx` - CTR 推移グラフ
+- `src/components/seo/positions-chart.tsx` - 検索順位推移グラフ
+- `vercel.json` - Vercel Cron Jobs 設定
+
 **次のアクション**:
 
 1. ⚠️ **優先度高**: Better-Auth 動作確認と Google OAuth 設定（Google OAuth 設定が必要）
@@ -289,6 +304,7 @@
 - Phase 1 完了: 約 85%
   - Week 1-2: 約 95% (環境セットアップ、DB/認証/トラッキング基本実装完了、マイグレーション完了)
   - Week 3-4: 約 75% (UI 構築完了、API 実装完了、グラフコンポーネント実装完了)
-- Phase 2 完了: 0%
+- Phase 2 完了: 約 15%
+  - Week 5-6: 約 100% (GSC 連携実装完了、SEO ダッシュボード実装完了)
 - Phase 3 完了: 0%
-- 全体進捗: 約 28%
+- 全体進捗: 約 32%

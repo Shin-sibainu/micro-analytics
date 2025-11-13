@@ -1,0 +1,1 @@
+ALTER TABLE `account` ADD `access_token_expires_at` integer;
