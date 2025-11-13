@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { sites, account } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { GSCClient } from "@/lib/gsc/client";
+import { getValidAccessToken } from "@/lib/gsc/token-refresh";
 
 /**
  * GSC連携を開始
@@ -16,10 +17,7 @@ export async function POST(request: NextRequest) {
     try {
       session = await requireAuthForAPI();
     } catch (error) {
-      return NextResponse.json(
-        { error: "認証が必要です" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -41,9 +39,10 @@ export async function POST(request: NextRequest) {
 
     if (!userAccount || !userAccount.accessToken) {
       return NextResponse.json(
-        { 
-          error: "Googleアカウントの連携が見つかりません。再度ログインしてください。",
-          requiresReauth: true 
+        {
+          error:
+            "Googleアカウントの連携が見つかりません。再度ログインしてください。",
+          requiresReauth: true,
         },
         { status: 401 }
       );
@@ -52,14 +51,14 @@ export async function POST(request: NextRequest) {
     // スコープを確認（GSC API用のスコープが含まれているか）
     const requiredScope = "https://www.googleapis.com/auth/webmasters.readonly";
     const currentScopes = userAccount.scope || "";
-    
+
     // スコープはカンマ区切りで保存されている（例: "openid,https://www.googleapis.com/auth/userinfo.profile,..."）
     // カンマ区切りで分割して確認
     const scopeArray = currentScopes
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
-    
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s.length > 0);
+
     const hasRequiredScope = scopeArray.includes(requiredScope);
 
     // デバッグ情報をログに出力
@@ -70,21 +69,27 @@ export async function POST(request: NextRequest) {
     console.log("Has required scope:", hasRequiredScope);
     console.log("Access token exists:", !!userAccount.accessToken);
     console.log("Access token length:", userAccount.accessToken?.length || 0);
-    
+
     // スコープチェックは警告のみ（実際のAPI呼び出しで確認）
     if (!hasRequiredScope) {
-      console.warn("⚠️ スコープが不足している可能性があります。GSC API呼び出しを試みます...");
+      console.warn(
+        "⚠️ スコープが不足している可能性があります。GSC API呼び出しを試みます..."
+      );
     }
 
-    // アクセストークンが期限切れの場合はリフレッシュ（簡易実装）
-    // 本番環境では、Better Authのトークンリフレッシュ機能を使用することを推奨
-    let accessToken = userAccount.accessToken;
-    if (userAccount.accessTokenExpiresAt && new Date(userAccount.accessTokenExpiresAt) < new Date()) {
-      // トークンが期限切れの場合、エラーを返す（実際にはリフレッシュトークンで更新する必要がある）
+    // 有効なアクセストークンを取得（期限切れの場合は自動リフレッシュ）
+    let accessToken: string;
+    try {
+      accessToken = await getValidAccessToken(session.user.id);
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "不明なエラー";
+      console.error("アクセストークン取得エラー:", errorMessage);
       return NextResponse.json(
-        { 
-          error: "アクセストークンの有効期限が切れています。再度ログインしてください。",
-          requiresReauth: true 
+        {
+          error:
+            "アクセストークンの取得に失敗しました。再度ログインしてください。",
+          requiresReauth: true,
         },
         { status: 401 }
       );
@@ -98,7 +103,10 @@ export async function POST(request: NextRequest) {
       .limit(1);
 
     if (!site) {
-      return NextResponse.json({ error: "サイトが見つかりません" }, { status: 404 });
+      return NextResponse.json(
+        { error: "サイトが見つかりません" },
+        { status: 404 }
+      );
     }
 
     if (site.userId !== session.user.id) {
@@ -116,17 +124,21 @@ export async function POST(request: NextRequest) {
       gscSites = await gscClient.listSites();
       console.log("GSC API呼び出し成功。サイト数:", gscSites?.length || 0);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "不明なエラー";
+      const errorMessage =
+        error instanceof Error ? error.message : "不明なエラー";
       console.error("GSC APIエラー:", errorMessage);
       console.error("エラー詳細:", error);
-      
+
       // スコープ不足のエラーを検出
-      if (errorMessage.includes("insufficient authentication scopes") || 
-          errorMessage.includes("insufficient authentication") ||
-          errorMessage.includes("403")) {
+      if (
+        errorMessage.includes("insufficient authentication scopes") ||
+        errorMessage.includes("insufficient authentication") ||
+        errorMessage.includes("403")
+      ) {
         return NextResponse.json(
-          { 
-            error: "GSC APIにアクセスするための権限が不足しています。以下の手順を確認してください：\n1. GCPプロジェクトで「Google Search Console API」が有効化されているか\n2. OAuth同意画面で「https://www.googleapis.com/auth/webmasters.readonly」スコープが追加されているか\n3. 一度ログアウトしてから再度ログインしてください",
+          {
+            error:
+              "GSC APIにアクセスするための権限が不足しています。以下の手順を確認してください：\n1. GCPプロジェクトで「Google Search Console API」が有効化されているか\n2. OAuth同意画面で「https://www.googleapis.com/auth/webmasters.readonly」スコープが追加されているか\n3. 一度ログアウトしてから再度ログインしてください",
             requiresReauth: true,
             missingScope: "https://www.googleapis.com/auth/webmasters.readonly",
             currentScopes: currentScopes,
@@ -134,20 +146,23 @@ export async function POST(request: NextRequest) {
               errorMessage,
               hasAccessToken: !!userAccount.accessToken,
               scopeField: currentScopes,
-            }
+            },
           },
           { status: 403 }
         );
       }
-      
+
       return NextResponse.json(
-        { 
+        {
           error: `GSC API認証エラー: ${errorMessage}`,
-          requiresReauth: errorMessage.includes("unauthorized") || errorMessage.includes("Unauthorized") || errorMessage.includes("401"),
+          requiresReauth:
+            errorMessage.includes("unauthorized") ||
+            errorMessage.includes("Unauthorized") ||
+            errorMessage.includes("401"),
           debug: {
             errorMessage,
             currentScopes: currentScopes,
-          }
+          },
         },
         { status: errorMessage.includes("403") ? 403 : 401 }
       );
@@ -158,21 +173,24 @@ export async function POST(request: NextRequest) {
     // - https://example.com (URLプレフィックス)
     // - sc-domain:example.com (ドメインプロパティ)
     // - http://example.com (URLプレフィックス)
-    
+
     // デバッグ情報を出力
     console.log("=== サイトURLマッチングデバッグ ===");
     console.log("入力されたsiteUrl:", siteUrl);
-    console.log("GSCから取得したサイト一覧:", gscSites.map(s => s.siteUrl));
-    
+    console.log(
+      "GSCから取得したサイト一覧:",
+      gscSites.map((s) => s.siteUrl)
+    );
+
     // siteUrlを正規化（プロトコル、末尾のスラッシュ、www.プレフィックスを削除）
     const normalizedInputUrl = siteUrl
       .replace(/^https?:\/\//, "")
       .replace(/\/$/, "")
       .replace(/^www\./, "") // www.プレフィックスを削除
       .toLowerCase();
-    
+
     console.log("正規化された入力URL:", normalizedInputUrl);
-    
+
     // ドメインを抽出する関数（www.を無視）
     const extractDomain = (url: string): string => {
       return url
@@ -182,33 +200,35 @@ export async function POST(request: NextRequest) {
         .replace(/^www\./, "") // www.プレフィックスを削除
         .toLowerCase();
     };
-    
+
     const matchedSite = gscSites.find((s) => {
       const gscUrl = s.siteUrl;
       const gscDomain = extractDomain(gscUrl);
       const inputDomain = extractDomain(siteUrl);
-      
-      console.log(`比較中: "${gscUrl}" (domain: "${gscDomain}") vs "${siteUrl}" (domain: "${inputDomain}")`);
-      
+
+      console.log(
+        `比較中: "${gscUrl}" (domain: "${gscDomain}") vs "${siteUrl}" (domain: "${inputDomain}")`
+      );
+
       // ドメインが一致するか確認（www.を無視）
       if (gscDomain === inputDomain) {
         console.log("✓ ドメイン一致でマッチ");
         return true;
       }
-      
+
       // 完全一致（大文字小文字を区別しない）
       if (gscUrl.toLowerCase() === siteUrl.toLowerCase()) {
         console.log("✓ 完全一致でマッチ");
         return true;
       }
-      
+
       // 正規化後のURLで比較
       const gscNormalized = extractDomain(gscUrl);
       if (gscNormalized === normalizedInputUrl) {
         console.log("✓ 正規化後でマッチ");
         return true;
       }
-      
+
       console.log("✗ マッチしませんでした");
       return false;
     });
@@ -216,20 +236,23 @@ export async function POST(request: NextRequest) {
     if (!matchedSite) {
       console.error("=== マッチング失敗 ===");
       console.error("入力URL:", siteUrl);
-      console.error("利用可能なGSCサイト:", gscSites.map(s => s.siteUrl));
+      console.error(
+        "利用可能なGSCサイト:",
+        gscSites.map((s) => s.siteUrl)
+      );
       return NextResponse.json(
-        { 
+        {
           error: "指定されたサイトがGoogle Search Consoleに登録されていません",
           debug: {
             inputUrl: siteUrl,
-            availableSites: gscSites.map(s => s.siteUrl),
+            availableSites: gscSites.map((s) => s.siteUrl),
             normalizedInputUrl: normalizedInputUrl,
-          }
+          },
         },
         { status: 404 }
       );
     }
-    
+
     console.log("✓ マッチしたサイト:", matchedSite.siteUrl);
 
     // GSC設定を保存
@@ -259,10 +282,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("GSC連携エラー:", error);
-    return NextResponse.json(
-      { error: "内部サーバーエラー" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "内部サーバーエラー" }, { status: 500 });
   }
 }
 
@@ -277,20 +297,14 @@ export async function DELETE(request: NextRequest) {
     try {
       session = await requireAuthForAPI();
     } catch (error) {
-      return NextResponse.json(
-        { error: "認証が必要です" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "認証が必要です" }, { status: 401 });
     }
 
     const searchParams = request.nextUrl.searchParams;
     const siteId = searchParams.get("siteId");
 
     if (!siteId) {
-      return NextResponse.json(
-        { error: "siteId が必要です" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "siteId が必要です" }, { status: 400 });
     }
 
     // サイトの所有権確認
@@ -301,7 +315,10 @@ export async function DELETE(request: NextRequest) {
       .limit(1);
 
     if (!site) {
-      return NextResponse.json({ error: "サイトが見つかりません" }, { status: 404 });
+      return NextResponse.json(
+        { error: "サイトが見つかりません" },
+        { status: 404 }
+      );
     }
 
     if (site.userId !== session.user.id) {
@@ -330,10 +347,6 @@ export async function DELETE(request: NextRequest) {
     );
   } catch (error) {
     console.error("GSC連携解除エラー:", error);
-    return NextResponse.json(
-      { error: "内部サーバーエラー" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "内部サーバーエラー" }, { status: 500 });
   }
 }
-

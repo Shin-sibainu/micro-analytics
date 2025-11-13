@@ -127,50 +127,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   // 通常のサイトの場合は認証と所有権確認が必要
   const { session, site } = await requireAuthAndSiteAccess(siteId);
 
-  // データがあるか確認（イベントが1つでもあるか）
-  const [hasData] = await db
-    .select()
-    .from(events)
-    .where(eq(events.siteId, siteId))
-    .limit(1);
-
-  // データがない場合はトラッキングコードを表示
-  // ただし、オンボーディング完了フラグがある場合は通常のダッシュボードを表示
-  // 注意: GSC連携が有効な場合はSEO分析ページを表示するため、このブロックには到達しない
-  if (!hasData && onboarding !== "completed") {
-    return (
-      <div className="container print:max-w-full">
-        <div className="pt-6 max-w-3xl mx-auto">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-              {site.name || site.domain} の設定
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400">
-              トラッキングコードをサイトに追加して、データの収集を開始しましょう
-            </p>
-          </div>
-
-          <TrackingCodeDisplay
-            trackingId={site.trackingId || ""}
-            domain={site.domain}
-            siteId={siteId}
-            showNextStep={true}
-            nextStepPath={`/dashboard/${siteId}/verify`}
-            nextStepLabel="設置確認へ"
-            trackingServerUrl={trackingServerUrl}
-          />
-
-          <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
-            <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              <strong>ヒント:</strong> トラッキングコードを追加したら、サイトを訪問してから数分待ってからこのページを更新してください。
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // GSC連携が有効な場合はSEO分析ページを表示
+  // GSC連携が有効な場合はSEO分析ページを表示（hasDataに関係なく）
   if (site.gscEnabled && site.gscConfig) {
     return (
       <div className="container print:max-w-full">
@@ -209,6 +166,48 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
             <Suspense fallback={<ListSkeleton />}>
               <GSCPagesList siteId={siteId} period="7d" limit={10} />
             </Suspense>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // データがあるか確認（イベントが1つでもあるか）
+  const [hasData] = await db
+    .select()
+    .from(events)
+    .where(eq(events.siteId, siteId))
+    .limit(1);
+
+  // データがない場合はトラッキングコードを表示
+  // ただし、オンボーディング完了フラグがある場合は通常のダッシュボードを表示
+  if (!hasData && onboarding !== "completed") {
+    return (
+      <div className="container print:max-w-full">
+        <div className="pt-6 max-w-3xl mx-auto">
+          <div className="mb-6">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              {site.name || site.domain} の設定
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              トラッキングコードをサイトに追加して、データの収集を開始しましょう
+            </p>
+          </div>
+
+          <TrackingCodeDisplay
+            trackingId={site.trackingId || ""}
+            domain={site.domain}
+            siteId={siteId}
+            showNextStep={true}
+            nextStepPath={`/dashboard/${siteId}/verify`}
+            nextStepLabel="設置確認へ"
+            trackingServerUrl={trackingServerUrl}
+          />
+
+          <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-md">
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              <strong>ヒント:</strong> トラッキングコードを追加したら、サイトを訪問してから数分待ってからこのページを更新してください。
+            </p>
           </div>
         </div>
       </div>
