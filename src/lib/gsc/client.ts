@@ -172,6 +172,42 @@ export class GSCClient {
   }
 
   /**
+   * クエリ別の日別検索アナリティクスデータを取得（前週比計算用）
+   */
+  async getQueryDailySearchAnalytics(
+    siteUrl: string,
+    startDate: string,
+    endDate: string,
+    limit: number = 1000
+  ) {
+    return this.getSearchAnalytics({
+      siteUrl,
+      startDate,
+      endDate,
+      dimensions: ["date", "query"] as any,
+      rowLimit: limit,
+    });
+  }
+
+  /**
+   * ページ別の日別検索アナリティクスデータを取得（前週比計算用）
+   */
+  async getPageDailySearchAnalytics(
+    siteUrl: string,
+    startDate: string,
+    endDate: string,
+    limit: number = 1000
+  ) {
+    return this.getSearchAnalytics({
+      siteUrl,
+      startDate,
+      endDate,
+      dimensions: ["date", "page"] as any,
+      rowLimit: limit,
+    });
+  }
+
+  /**
    * 国別の検索アナリティクスデータを取得
    */
   async getCountrySearchAnalytics(

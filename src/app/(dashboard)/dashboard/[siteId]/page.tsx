@@ -11,10 +11,9 @@ import { TrackingCodeDisplay } from "@/components/dashboard/tracking-code-displa
 import { OnboardingProgress } from "@/components/dashboard/onboarding-progress";
 import { TrackingStatusBadge } from "@/components/dashboard/tracking-status-badge";
 import { EmptyDashboardMessage } from "@/components/dashboard/empty-dashboard-message";
-import { GSCStatsOverview } from "@/components/seo/gsc-stats-overview";
 import { GSCQueriesList } from "@/components/seo/gsc-queries-list";
-import { GSCPagesList } from "@/components/seo/gsc-pages-list";
-import { GSCPerformanceChart } from "@/components/seo/gsc-performance-chart";
+import { AIInsightsCard } from "@/components/dashboard/ai-insights-card";
+import { SEOStatsTrendChart } from "@/components/seo/seo-stats-trend-chart";
 import { db } from "@/lib/db";
 import { events } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
@@ -57,8 +56,8 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
     const isLoggedIn = !!session?.user;
 
     return (
-      <>
-        <div className="container print:max-w-full">
+        <>
+        <div className="container max-w-5xl print:max-w-full">
           <div className="pt-6"></div>
 
           <div className="space-y-6">
@@ -107,14 +106,6 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
                       開始する
                     </Link>
                   </div>
-                  <div className="inline-flex ml-3 shadow-xs rounded-md">
-                    <Link
-                      href="/"
-                      className="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-indigo-600 bg-white border border-transparent leading-6 rounded-md dark:text-gray-100 dark:bg-gray-800 hover:text-indigo-500 dark:hover:text-indigo-500 focus:outline-hidden focus:ring transition duration-150 ease-in-out"
-                    >
-                      詳しく見る
-                    </Link>
-                  </div>
                 </div>
               </div>
             </div>
@@ -127,10 +118,46 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   // 通常のサイトの場合は認証と所有権確認が必要
   const { session, site } = await requireAuthAndSiteAccess(siteId);
 
+  // GSC連携サイト向けに、GSC統計（7日間）のサマリと一覧を事前取得しておく
+  let gscStats7d: {
+    summary?: {
+      clicks: number;
+      impressions: number;
+      ctr: number;
+      position: number;
+    };
+    queries?: any[];
+    pages?: any[];
+  } | null = null;
+
+  if (site.gscEnabled && site.gscConfig) {
+    try {
+      const headersList = await headers();
+      const cookie = headersList.get("cookie") || "";
+      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+
+      const gscRes = await fetch(
+        `${baseUrl}/api/gsc/stats?siteId=${siteId}&period=7d`,
+        {
+          cache: "no-store",
+          headers: {
+            cookie,
+          },
+        }
+      );
+
+      if (gscRes.ok) {
+        gscStats7d = await gscRes.json();
+      }
+    } catch (error) {
+      console.error("Server-side GSC stats fetch error:", error);
+    }
+  }
+
   // GSC連携が有効な場合はSEO分析ページを表示（hasDataに関係なく）
   if (site.gscEnabled && site.gscConfig) {
     return (
-      <div className="container print:max-w-full">
+      <div className="container max-w-5xl print:max-w-full">
         <div className="pt-6">
           <div className="mb-6 flex items-center justify-between">
             <div>
@@ -148,25 +175,28 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
         </div>
 
         <div className="space-y-6">
-          {/* GSC統計概要 */}
-          <Suspense fallback={<StatsSkeleton />}>
-            <GSCStatsOverview siteId={siteId} period="7d" />
-          </Suspense>
-
-          {/* パフォーマンス推移グラフ */}
+          {/* 1. 1ヶ月の推移グラフ */}
           <Suspense fallback={<ChartSkeleton />}>
-            <GSCPerformanceChart siteId={siteId} period="7d" />
+            <SEOStatsTrendChart siteId={siteId} />
           </Suspense>
 
-          {/* 検索クエリとページ別パフォーマンス */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Suspense fallback={<ListSkeleton />}>
-              <GSCQueriesList siteId={siteId} period="7d" limit={10} />
-            </Suspense>
-            <Suspense fallback={<ListSkeleton />}>
-              <GSCPagesList siteId={siteId} period="7d" limit={10} />
+          {/* 2. 上位キーワード */}
+          <Suspense fallback={<ListSkeleton />}>
+            <GSCQueriesList
+              siteId={siteId}
+              period="7d"
+              limit={10}
+              initialQueries={gscStats7d?.queries}
+            />
+          </Suspense>
+
+          {/* 3. SEO改善のアクション（AIインサイト） */}
+          <div className="pb-6">
+            <Suspense fallback={<StatsSkeleton />}>
+              <AIInsightsCard siteId={siteId} period="7d" />
             </Suspense>
           </div>
+
         </div>
       </div>
     );
@@ -217,7 +247,7 @@ export default async function DashboardPage({ params, searchParams }: DashboardP
   // データがある場合は通常のダッシュボードを表示
   // データがない場合でも、オンボーディング完了フラグがある場合は空のダッシュボードを表示
   return (
-    <div className="container print:max-w-full">
+    <div className="container max-w-5xl print:max-w-full">
       <div className="pt-6">
         <div className="mb-6 flex items-center justify-between">
           <div>

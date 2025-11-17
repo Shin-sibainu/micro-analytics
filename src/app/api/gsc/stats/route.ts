@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams;
     const siteId = searchParams.get("siteId");
     const period = searchParams.get("period") || "7d"; // デフォルト7日
+    const startDateParam = searchParams.get("startDate");
+    const endDateParam = searchParams.get("endDate");
 
     if (!siteId) {
       return NextResponse.json({ error: "siteId が必要です" }, { status: 400 });
@@ -74,16 +76,24 @@ export async function GET(request: NextRequest) {
     }
 
     // 期間を計算
-    const endDate = new Date();
-    const startDate = new Date();
-    if (period === "7d") {
-      startDate.setDate(endDate.getDate() - 7);
-    } else if (period === "30d") {
-      startDate.setDate(endDate.getDate() - 30);
-    } else if (period === "90d") {
-      startDate.setDate(endDate.getDate() - 90);
+    let endDate = new Date();
+    let startDate = new Date();
+    
+    // startDateとendDateが指定されている場合はそれを使用
+    if (startDateParam && endDateParam) {
+      startDate = new Date(startDateParam);
+      endDate = new Date(endDateParam);
     } else {
-      startDate.setDate(endDate.getDate() - 7);
+      // periodパラメータから期間を計算
+      if (period === "7d") {
+        startDate.setDate(endDate.getDate() - 7);
+      } else if (period === "30d") {
+        startDate.setDate(endDate.getDate() - 30);
+      } else if (period === "90d") {
+        startDate.setDate(endDate.getDate() - 90);
+      } else {
+        startDate.setDate(endDate.getDate() - 7);
+      }
     }
 
     const startDateStr = startDate.toISOString().split("T")[0];
@@ -124,11 +134,14 @@ export async function GET(request: NextRequest) {
     );
     const avgCTR =
       totalImpressions > 0 ? (totalClicks / totalImpressions) * 100 : 0;
-    const totalPosition = rows.reduce(
-      (sum, row) => sum + (row.position || 0),
+    // インプレッション加重平均順位を計算（Google Search Consoleの計算方法に準拠）
+    const totalPositionWeighted = rows.reduce(
+      (sum, row) => sum + (row.position || 0) * (row.impressions || 0),
       0
     );
-    const avgPosition = rows.length > 0 ? totalPosition / rows.length : 0;
+    const avgPosition = totalImpressions > 0 
+      ? totalPositionWeighted / totalImpressions 
+      : 0;
 
     return NextResponse.json({
       period,
